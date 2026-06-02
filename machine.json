@@ -1,0 +1,63 @@
+{
+        "api_version": "1.0",    # verison of intel_api
+        "deepmd_version": "2.0.1",    # version of deepmd
+  
+        # stage1: train dpmd model with the initial input files.   
+        "train" :[
+                {
+                        "command": "dp", # with the command of dp from deepmd-kit
+                        "machine": {
+                                "batch_type": "Shell",
+                                "context_type": "local",  
+                                "local_root" : "./",
+                                "remote_root": "/home/yiran_yang/data/Learn/dpgen/dpgen_example/run/remote"
+                        },
+                        "resources": {
+                                "number_node": 1, 
+                                "cpu_per_node": 4,
+                                "gpu_per_node": 0,
+                                "group_size": 1 # the no. of groups calculate at the same time
+                        }
+                }
+        ],
+
+
+        # use lammps to explore the configuration space, find possible new configurations  
+        "model_devi":[
+                {
+                        "command": "mpirun -n 4 lmp -i input.lammps", 
+                        "machine": {
+                                "batch_type": "Shell",
+                                "context_type": "local",
+                                "local_root" : "./",
+                                "remote_root": "/home/yiran_yang/data/Learn/dpgen/dpgen_example/run/remote"
+                        },
+                        "resources": {
+                                "number_node": 1,
+                                "cpu_per_node": 4,
+                                "gpu_per_node": 0,
+                                "group_size": 5 ## ??
+                        }
+                }
+        ],
+
+        # first-principle calculation. receive the new configurations revealed by model_devi process, present it to VASP(other fp packages also)
+  
+        "fp":[
+                {
+                        "command": "mpirun -n 4 vasp_std",
+                        "machine": {
+                           "batch_type": "Shell",
+                                "context_type": "local",
+                                "local_root" : "./",
+                                "remote_root": "/home/yiran_yang/data/Learn/dpgen/dpgen_example/run/remote"
+                        },
+                        "resources": {
+                                "number_node": 1,
+                                "cpu_per_node": 4,
+                                "gpu_per_node": 0,
+                                "group_size": 125
+                        }
+                }
+        ]
+}
